@@ -1,0 +1,57 @@
+[
+  {
+    "id": "post1",
+    "type": "image",
+    "caption": "Beautiful sunset at the beach #sunset #beach #vacation",
+    "url": "https://www.instagram.com/p/sample1/",
+    "timestamp": "2025-03-15T18:30:00",
+    "likes": 245,
+    "comments": 32,
+    "hashtags": ["sunset", "beach", "vacation"],
+    "mentions": []
+  },
+  {
+    "id": "post2",
+    "type": "video",
+    "caption": "Check out my new surfing video! #surfing #ocean #waves",
+    "url": "https://www.instagram.com/p/sample2/",
+    "timestamp": "2025-03-20T14:15:00",
+    "likes": 532,
+    "comments": 78,
+    "hashtags": ["surfing", "ocean", "waves"],
+    "mentions": ["surfclub"]
+  },
+  {
+    "id": "post3",
+    "type": "carousel",
+    "caption": "My trip to Hawaii! Swipe to see more! #hawaii #travel #vacation",
+    "url": "https://www.instagram.com/p/sample3/",
+    "timestamp": "2025-03-25T09:45:00",
+    "likes": 876,
+    "comments": 124,
+    "hashtags": ["hawaii", "travel", "vacation"],
+    "mentions": []
+  },
+  {
+    "id": "post4",
+    "type": "image",
+    "caption": "Morning coffee and coding session #developer #coding #coffee",
+    "url": "https://www.instagram.com/p/sample4/",
+    "timestamp": "2025-04-01T07:30:00",
+    "likes": 312,
+    "comments": 45,
+    "hashtags": ["developer", "coding", "coffee"],
+    "mentions": []
+  },
+  {
+    "id": "post5",
+    "type": "video",
+    "caption": "Trying out the new drone! #drone #aerial #photography",
+    "url": "https://www.instagram.com/p/sample5/",
+    "timestamp": "2025-04-05T16:20:00",
+    "likes": 421,
+    "comments": 67,
+    "hashtags": ["drone", "aerial", "photography"],
+    "mentions": []
+  }
+]

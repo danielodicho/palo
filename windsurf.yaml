@@ -1,0 +1,28 @@
+version: 1
+name: social_scraper_pipeline
+description: Pipeline for scraping and categorizing multimedia content from social profiles
+
+entrypoint: scrape_and_classify_socials
+
+nodes:
+  - id: get_user_handles
+    type: input
+    description: Accept brand name or social media handles
+
+  - id: scrape_socials
+    type: module
+    path: modules/scrape_socials.py
+    inputs:
+      handles: get_user_handles.output
+
+  - id: classify_media
+    type: module
+    path: modules/classify_media.py
+    inputs:
+      media_data: scrape_socials.output
+
+  - id: store_results
+    type: module
+    path: modules/store_results.py
+    inputs:
+      classified_data: classify_media.output

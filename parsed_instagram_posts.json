@@ -1,0 +1,142 @@
+[
+  {
+    "id": "post1",
+    "type": "image",
+    "caption": "Beautiful sunset at the beach #sunset #beach #vacation",
+    "url": "https://www.instagram.com/p/sample1/",
+    "timestamp": "2025-03-15T18:30:00",
+    "likes": 245,
+    "comments": 32,
+    "hashtags": ["sunset", "beach", "vacation"],
+    "mentions": [],
+    "media": {
+      "image": "https://example.com/image1.jpg",
+      "video": null,
+      "images": ["https://example.com/image1.jpg"],
+      "video_views": null,
+      "video_plays": null,
+      "duration": null
+    },
+    "comments_sample": ["Gorgeous view!", "Where is this?", "Love the colors!"],
+    "tagged_users": [],
+    "music": null,
+    "owner": {
+      "username": "odichodaniel",
+      "id": "user123",
+      "full_name": "Daniel Odicho"
+    }
+  },
+  {
+    "id": "post2",
+    "type": "video",
+    "caption": "Check out my new surfing video! 🏄‍♂️ #surfing #ocean #waves @surfclub",
+    "url": "https://www.instagram.com/p/sample2/",
+    "timestamp": "2025-03-20T14:15:00",
+    "likes": 532,
+    "comments": 78,
+    "hashtags": ["surfing", "ocean", "waves"],
+    "mentions": ["surfclub"],
+    "media": {
+      "image": "https://example.com/thumbnail2.jpg",
+      "video": "https://example.com/video2.mp4",
+      "images": ["https://example.com/thumbnail2.jpg"],
+      "video_views": 1245,
+      "video_plays": 987,
+      "duration": 45
+    },
+    "comments_sample": ["Amazing skills!", "The waves look perfect", "Where is this beach?"],
+    "tagged_users": ["surfclub"],
+    "music": "Summer Vibes",
+    "owner": {
+      "username": "odichodaniel",
+      "id": "user123",
+      "full_name": "Daniel Odicho"
+    }
+  },
+  {
+    "id": "post3",
+    "type": "carousel",
+    "caption": "My trip to Hawaii 🌴 Swipe to see more! #hawaii #travel #vacation",
+    "url": "https://www.instagram.com/p/sample3/",
+    "timestamp": "2025-03-25T09:45:00",
+    "likes": 876,
+    "comments": 124,
+    "hashtags": ["hawaii", "travel", "vacation"],
+    "mentions": [],
+    "media": {
+      "image": "https://example.com/hawaii1.jpg",
+      "video": null,
+      "images": [
+        "https://example.com/hawaii1.jpg",
+        "https://example.com/hawaii2.jpg",
+        "https://example.com/hawaii3.jpg",
+        "https://example.com/hawaii4.jpg"
+      ],
+      "video_views": null,
+      "video_plays": null,
+      "duration": null
+    },
+    "comments_sample": ["Paradise!", "Take me with you next time!", "Which island is this?"],
+    "tagged_users": ["travelbuddy"],
+    "music": null,
+    "owner": {
+      "username": "odichodaniel",
+      "id": "user123",
+      "full_name": "Daniel Odicho"
+    }
+  },
+  {
+    "id": "post4",
+    "type": "image",
+    "caption": "Morning coffee and coding session ☕💻 #developer #coding #coffee",
+    "url": "https://www.instagram.com/p/sample4/",
+    "timestamp": "2025-04-01T07:30:00",
+    "likes": 312,
+    "comments": 45,
+    "hashtags": ["developer", "coding", "coffee"],
+    "mentions": [],
+    "media": {
+      "image": "https://example.com/coding.jpg",
+      "video": null,
+      "images": ["https://example.com/coding.jpg"],
+      "video_views": null,
+      "video_plays": null,
+      "duration": null
+    },
+    "comments_sample": ["What are you working on?", "Nice setup!", "Coffee is essential!"],
+    "tagged_users": [],
+    "music": null,
+    "owner": {
+      "username": "odichodaniel",
+      "id": "user123",
+      "full_name": "Daniel Odicho"
+    }
+  },
+  {
+    "id": "post5",
+    "type": "video",
+    "caption": "Trying out the new drone! 🚁 #drone #aerial #photography",
+    "url": "https://www.instagram.com/p/sample5/",
+    "timestamp": "2025-04-05T16:20:00",
+    "likes": 421,
+    "comments": 67,
+    "hashtags": ["drone", "aerial", "photography"],
+    "mentions": [],
+    "media": {
+      "image": "https://example.com/drone_thumbnail.jpg",
+      "video": "https://example.com/drone_video.mp4",
+      "images": ["https://example.com/drone_thumbnail.jpg"],
+      "video_views": 1876,
+      "video_plays": 1543,
+      "duration": 60
+    },
+    "comments_sample": ["Amazing footage!", "What drone model is this?", "The view is spectacular!"],
+    "tagged_users": [],
+    "music": "Flight",
+    "owner": {
+      "username": "odichodaniel",
+      "id": "user123",
+      "full_name": "Daniel Odicho"
+    }
+  }
+]
