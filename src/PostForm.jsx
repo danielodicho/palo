@@ -4,7 +4,6 @@ import axios from "axios";
 const PostForm = () => {
   // Local state for form data
   const [formData, setFormData] = useState({
-    postTitle: "",
     postContent: "",
     platforms: [],
     postDate: "",
@@ -68,7 +67,6 @@ const PostForm = () => {
     try {
       // Prepare data to send
       const dataToSend = {
-        title: formData.postTitle,
         content: formData.postContent,
         platforms: formData.platforms,
         scheduledDateTime: formData.postDate && formData.postTime 
@@ -110,7 +108,6 @@ const PostForm = () => {
 
       // Reset the form
       setFormData({
-        postTitle: "",
         postContent: "",
         platforms: [],
         postDate: "",
@@ -135,34 +132,22 @@ const PostForm = () => {
     <div className="card">
       <form id="socialMediaForm" onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="postTitle">Post Title/Headline</label>
-          <input
-            type="text"
-            id="postTitle"
-            name="postTitle"
-            className="form-control"
-            placeholder="Enter a compelling title for your post"
-            value={formData.postTitle}
-            onChange={handleChange}
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-
-        <div className="form-group">
           <label htmlFor="postContent">Post Content</label>
           <textarea
             id="postContent"
             name="postContent"
             className="form-control"
-            placeholder="Write your post content here..."
+            placeholder="What would you like to share today?"
             value={formData.postContent}
             onChange={handleChange}
             required
             disabled={isSubmitting}
-          />
-          <div className="character-count" style={{ color: characterCount > 280 ? '#ff3b30' : '#666' }}>
-            {characterCount}/280 characters
+          ></textarea>
+          <div className="character-count">
+            <span className={characterCount > 280 ? "text-danger" : ""}>
+              {characterCount}
+            </span>{" "}
+            / 280 characters
           </div>
         </div>
 
@@ -228,9 +213,6 @@ const PostForm = () => {
         <div className="form-group">
           <label>Post Preview</label>
           <div className="preview-card">
-            <div id="previewTitle" style={{ fontWeight: "bold", marginBottom: "10px" }}>
-              {formData.postTitle}
-            </div>
             <div id="previewContent">
               {formData.postContent}
             </div>
@@ -250,6 +232,7 @@ const PostForm = () => {
                 value={formData.postDate}
                 onChange={handleChange}
                 disabled={isSubmitting}
+                min={new Date().toISOString().split("T")[0]}
               />
             </div>
             <div className="form-group">
