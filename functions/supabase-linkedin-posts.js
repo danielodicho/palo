@@ -1,23 +1,11 @@
-// Serverless function to handle LinkedIn posts with Supabase database
-const { createClient } = require('@supabase/supabase-js');
+// Serverless function to handle LinkedIn posts with file-based database
+const db = require('./db');
 
-// Initialize Supabase client
-let supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-
-// Function to create Supabase client
-const getSupabaseClient = () => {
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase credentials. Please set SUPABASE_URL and SUPABASE_KEY environment variables.');
-  }
-  
-  // Ensure URL has https:// prefix
-  if (supabaseUrl && !supabaseUrl.startsWith('http')) {
-    supabaseUrl = 'https://' + supabaseUrl;
-  }
-  
-  console.log('Creating Supabase client with URL:', supabaseUrl);
-  return createClient(supabaseUrl, supabaseKey);
+// Debug function to safely log sensitive information
+const debugLog = (message, data) => {
+  // Mask sensitive data
+  const safeData = { ...data };
+  console.log(`DEBUG: ${message}`, JSON.stringify(safeData, null, 2));
 };
 
 exports.handler = async (event, context) => {
@@ -38,41 +26,24 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const supabase = getSupabaseClient();
+    debugLog('Request received', { 
+      method: event.httpMethod,
+      path: event.path
+    });
 
     // GET request to fetch all LinkedIn posts
     if (event.httpMethod === 'GET') {
-      try {
-        const { data, error } = await supabase
-          .from('linkedin_posts')
-          .select('*')
-          .order('received_at', { ascending: false });
-
-        if (error) {
-          console.error('Supabase query error:', error);
-          throw new Error(`Database error: ${error.message}`);
-        }
-
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({
-            success: true,
-            posts: data
-          })
-        };
-      } catch (dbError) {
-        console.error('Database query failed:', dbError);
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({
-            success: false,
-            message: 'Failed to retrieve posts',
-            error: dbError.message
-          })
-        };
-      }
+      debugLog('Fetching all posts from file-based database', {});
+      const posts = db.readPosts();
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          posts: posts
+        })
+      };
     }
 
     // POST request to receive LinkedIn post data
@@ -99,7 +70,7 @@ exports.handler = async (event, context) => {
         };
       }
 
-      // Prepare post data - store URL as text string without validation
+      // Prepare post data
       const postData = {
         url: String(data.url), // Ensure it's a string
         title: data.title ? String(data.title) : null,
@@ -107,36 +78,28 @@ exports.handler = async (event, context) => {
         received_at: new Date().toISOString()
       };
       
-      try {
-        // Insert into Supabase
-        const { data: insertedData, error } = await supabase
-          .from('linkedin_posts')
-          .insert([postData])
-          .select();
-
-        if (error) {
-          console.error('Supabase insert error:', error);
-          throw new Error(`Database error: ${error.message}`);
-        }
-
+      // Save to file-based database
+      debugLog('Saving post to file-based database', { postData });
+      const savedPost = db.addPost(postData);
+      
+      if (savedPost) {
         return {
           statusCode: 200,
           headers,
           body: JSON.stringify({ 
             success: true, 
             message: 'LinkedIn post data received and saved successfully',
-            post: insertedData[0]
+            post: savedPost
           })
         };
-      } catch (dbError) {
-        console.error('Database operation failed:', dbError);
+      } else {
+        console.error('Failed to save post to database');
         return {
           statusCode: 500,
           headers,
           body: JSON.stringify({ 
             success: false, 
-            message: 'Failed to save to database',
-            error: dbError.message
+            message: 'Failed to save post to database'
           })
         };
       }
@@ -150,6 +113,11 @@ exports.handler = async (event, context) => {
     };
   } catch (error) {
     console.error('Error processing LinkedIn post data:', error);
+    debugLog('General error details', { 
+      name: error.name,
+      message: error.message
+    });
+    
     return {
       statusCode: 500,
       headers,
