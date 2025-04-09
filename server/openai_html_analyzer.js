@@ -1,10 +1,12 @@
 // OpenAI HTML Analyzer
 // This module provides a function to analyze HTML content using OpenAI's API
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const cheerio = require('cheerio');
+
+// Load environment variables from the .env file in the server directory
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 /**
  * Analyzes HTML content using OpenAI's API
