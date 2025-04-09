@@ -22,240 +22,178 @@ function ContentEditor() {
 
   // Status states
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isEditingDraft, setIsEditingDraft] = useState(false);
 
   // Character count state
   const [characterCount, setCharacterCount] = useState(0);
 
-  // Endpoint to post data
-  const ZAPIER_ENDPOINT = "https://hooks.zapier.com/hooks/catch/22402606/202waxr/";
-
   // Load draft if editing an existing one
   useEffect(() => {
     if (draftId) {
-      console.log(`Loading draft: ${draftId}`);
-      // Simulate fetching draft data
-      // TODO: Replace with actual API call to get draft data
-      setTimeout(() => {
-        const mockContent = `This is the content for draft ${draftId}. Time to make it shine with our new modern editor interface!`;
-        setFormData(prev => ({
-          ...prev,
-          postContent: mockContent
-        }));
-        setCharacterCount(mockContent.length);
-        setIsLoading(false);
-      }, 500);
+      loadDraft(draftId);
     }
-
-    // Update toast reference when component mounts
-    toastRef.current = document.getElementById("successToast");
   }, [draftId]);
 
-  // Handle changes in form fields
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-
-    // Update character count for post content
-    if (name === "postContent") {
-      setCharacterCount(value.length);
+  // Load a draft by ID
+  const loadDraft = async (id) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`/api/drafts/${id}`);
+      if (response.data.success) {
+        const { content, platforms } = response.data.draft;
+        setFormData(prev => ({
+          ...prev,
+          postContent: content,
+          platforms: platforms || ['linkedin']
+        }));
+        setCharacterCount(content.length);
+        setIsEditingDraft(true);
+      }
+    } catch (error) {
+      console.error('Error loading draft:', error);
+      setSubmitError('Failed to load draft');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Handle platform selection
-  const handlePlatformSelection = (platform) => {
-    setFormData((prevState) => {
-      const platforms = [...prevState.platforms];
-      
-      if (platforms.includes(platform)) {
-        // Remove platform if already selected
-        const index = platforms.indexOf(platform);
-        platforms.splice(index, 1);
-      } else {
-        // Add platform if not selected
-        platforms.push(platform);
-      }
-      
-      return {
-        ...prevState,
-        platforms
-      };
-    });
-  };
-
-  // Save as draft
-  const saveDraft = () => {
-    console.log("Saving as draft:", formData);
-    // TODO: Implement API call to save draft
-    
-    alert("Draft saved successfully!");
-    // Navigate to drafts tab
-    navigate('/?tab=drafts');
-  };
-
-  // Publish now
-  const publishNow = async () => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setIsSubmitting(true);
     setSubmitError(null);
-    setSubmitSuccess(false);
-    
+
     try {
-      // Prepare data to send
-      const dataToSend = {
-        content: formData.postContent,
+      // Process any inline prompts before submitting
+      const processedContent = await processInlinePrompts(formData.postContent);
+      
+      const response = await axios.post('/api/posts', {
+        content: processedContent,
         platforms: formData.platforms,
-        scheduledDateTime: null // Publish immediately
-      };
-
-      console.log("Publishing now:", dataToSend);
-
-      // Use a proxy server or CORS-anywhere to bypass CORS restrictions
-      // For development purposes, we'll use a direct fetch with mode: 'no-cors'
-      const response = await fetch(ZAPIER_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend),
-        mode: 'no-cors' // This prevents CORS errors but you won't get response data
+        postDate: formData.postDate,
+        postTime: formData.postTime
       });
       
-      console.log("Response from Zapier (limited due to no-cors):", response);
-      
-      // Since we're using no-cors, we won't get a proper response
-      // So we'll assume success if no error is thrown
-      setSubmitSuccess(true);
-
-      // Show success toast
-      if (toastRef.current) {
-        toastRef.current.classList.add("show");
-        setTimeout(() => {
-          if (toastRef.current) {
-            toastRef.current.classList.remove("show");
-          }
-        }, 3000);
+      if (response.data.success) {
+        setSubmitSuccess(true);
+        showToast('Post submitted successfully!');
+        navigate('/?tab=posts');
+      } else {
+        throw new Error(response.data.error || 'Failed to submit post');
       }
-
-      // Reset the form
-      setFormData({
-        postContent: "",
-        platforms: ["linkedin"],
-        postDate: "",
-        postTime: ""
-      });
-      setCharacterCount(0);
-      
     } catch (error) {
-      console.error("Error publishing:", error);
-      setSubmitError("There was an error publishing your content. Please try again.");
+      console.error('Error submitting post:', error);
+      setSubmitError('Failed to submit post');
+      showToast(`Failed to submit post: ${error.message}`, 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Schedule for later
-  const schedulePost = async () => {
-    if (!formData.postDate || !formData.postTime) {
-      alert("Please select both date and time for scheduling.");
+  // Handle saving draft
+  const handleSaveDraft = async () => {
+    if (!formData.postContent.trim()) {
+      showToast('Please enter some content before saving', 'error');
       return;
     }
 
-    setIsSubmitting(true);
+    setIsSavingDraft(true);
     setSubmitError(null);
-    setSubmitSuccess(false);
-    
+
     try {
-      // Prepare data to send
-      const dataToSend = {
+      const endpoint = isEditingDraft ? `/api/drafts/${draftId}` : '/api/drafts';
+      const method = isEditingDraft ? 'put' : 'post';
+      
+      const response = await axios[method](endpoint, {
         content: formData.postContent,
-        platforms: formData.platforms,
-        scheduledDateTime: `${formData.postDate}T${formData.postTime}`
-      };
-
-      console.log("Scheduling post:", dataToSend);
-
-      // Use a proxy server or CORS-anywhere to bypass CORS restrictions
-      const response = await fetch(ZAPIER_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend),
-        mode: 'no-cors'
+        platforms: formData.platforms
       });
-      
-      console.log("Response from Zapier (limited due to no-cors):", response);
-      
-      // Since we're using no-cors, we won't get a proper response
-      // So we'll assume success if no error is thrown
-      setSubmitSuccess(true);
 
-      // Show success toast
-      if (toastRef.current) {
-        toastRef.current.classList.add("show");
-        setTimeout(() => {
-          if (toastRef.current) {
-            toastRef.current.classList.remove("show");
-          }
-        }, 3000);
+      if (response.data.success) {
+        showToast('Draft saved successfully!');
+        navigate('/?tab=drafts');
       }
-
-      // Reset the form
-      setFormData({
-        postContent: "",
-        platforms: ["linkedin"],
-        postDate: "",
-        postTime: ""
-      });
-      setCharacterCount(0);
-      setShowSchedule(false);
-      
     } catch (error) {
-      console.error("Error scheduling post:", error);
-      setSubmitError("There was an error scheduling your post. Please try again.");
+      console.error('Error saving draft:', error);
+      setSubmitError('Failed to save draft');
+      showToast('Failed to save draft', 'error');
     } finally {
-      setIsSubmitting(false);
+      setIsSavingDraft(false);
     }
   };
 
-  // AI Tool functionality
-  const activateAITool = (tool) => {
-    setActiveAITool(tool);
-    
-    // Simulate AI processing
-    setAiSuggestion('Analyzing your content...');
-    
-    setTimeout(() => {
-      // Mock AI suggestions based on the selected tool
-      let suggestion = '';
-      switch(tool) {
-        case 'tone':
-          suggestion = 'Your content has a professional tone. Consider adding more personal elements to increase engagement.';
-          break;
-        case 'hashtags':
-          suggestion = 'Suggested hashtags: #ContentStrategy #SocialMediaTips #DigitalMarketing #GrowthHacking';
-          break;
-        case 'readability':
-          suggestion = 'Readability score: Good (Grade 8). Your content is accessible to a broad audience.';
-          break;
-        default:
-          suggestion = '';
+  // Handle content change
+  const handleContentChange = (e) => {
+    const content = e.target.value;
+    setFormData(prev => ({ ...prev, postContent: content }));
+    setCharacterCount(content.length);
+  };
+
+  // Handle platform toggle
+  const handlePlatformToggle = (platform) => {
+    setFormData(prev => ({
+      ...prev,
+      platforms: prev.platforms.includes(platform)
+        ? prev.platforms.filter(p => p !== platform)
+        : [...prev.platforms, platform]
+    }));
+  };
+
+  // Show toast message
+  const showToast = (message, type = 'success') => {
+    if (toastRef.current) {
+      toastRef.current.textContent = message;
+      toastRef.current.className = `toast ${type}`;
+      toastRef.current.style.display = 'block';
+      setTimeout(() => {
+        if (toastRef.current) {
+          toastRef.current.style.display = 'none';
+        }
+      }, 3000);
+    }
+  };
+
+  // Process inline prompts and generate content
+  const processInlinePrompts = async (text) => {
+    const promptRegex = /##\[(.*?)\]/g;
+    let lastIndex = 0;
+    let finalContent = "";
+    let match;
+
+    while ((match = promptRegex.exec(text)) !== null) {
+      // Add text before the prompt
+      finalContent += text.slice(lastIndex, match.index);
+      
+      // Generate content for the prompt
+      try {
+        const response = await axios.post('/api/gemini/generate', {
+          prompt: match[1],
+          files: [],
+          history: []
+        });
+
+        if (response.data.success) {
+          finalContent += response.data.content;
+        }
+      } catch (error) {
+        console.error('Error processing inline prompt:', error);
+        finalContent += match[0]; // Keep original prompt text if generation fails
       }
-      setAiSuggestion(suggestion);
-    }, 1000);
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    finalContent += text.slice(lastIndex);
+    return finalContent;
   };
 
   if (isLoading) {
-    return (
-      <div className="modern-loading">
-        <div className="loading-spinner"></div>
-        <p>Loading your content...</p>
-      </div>
-    );
+    return <div>Loading draft...</div>;
   }
 
   return (
@@ -272,18 +210,19 @@ function ContentEditor() {
             {showSchedule ? "Hide Schedule" : "Schedule"}
           </button>
           <button 
-            onClick={saveDraft} 
+            onClick={handleSaveDraft} 
             className="modern-button secondary"
-            disabled={isSubmitting || !formData.postContent.trim()}
+            disabled={isSavingDraft || !formData.postContent.trim()}
           >
-            Save as Draft
+            {isSavingDraft ? "Saving..." : (isEditingDraft ? "Update Draft" : "Save as Draft")}
           </button>
           <button 
-            onClick={publishNow} 
+            onClick={handleSubmit}
+            type="button"
             className="modern-button primary"
             disabled={isSubmitting || !formData.postContent.trim()}
           >
-            Publish Now
+            {isSubmitting ? "Posting..." : "Post Now"}
           </button>
         </div>
       </header>
@@ -295,8 +234,8 @@ function ContentEditor() {
             id="postContent"
             name="postContent"
             value={formData.postContent}
-            onChange={handleChange}
-            placeholder="What would you like to share today?"
+            onChange={handleContentChange}
+            placeholder="What would you like to share today? Use ##[PROMPT] for inline Gemini prompts"
             required
             disabled={isSubmitting}
           ></textarea>
@@ -321,7 +260,7 @@ function ContentEditor() {
                   name="postDate"
                   className="form-control"
                   value={formData.postDate}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData(prev => ({ ...prev, postDate: e.target.value }))}
                   disabled={isSubmitting}
                   min={new Date().toISOString().split("T")[0]}
                 />
@@ -334,18 +273,9 @@ function ContentEditor() {
                   name="postTime"
                   className="form-control"
                   value={formData.postTime}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData(prev => ({ ...prev, postTime: e.target.value }))}
                   disabled={isSubmitting}
                 />
-              </div>
-              <div className="schedule-item">
-                <button 
-                  onClick={schedulePost} 
-                  className="modern-button primary schedule-button"
-                  disabled={isSubmitting || !formData.postContent.trim() || !formData.postDate || !formData.postTime}
-                >
-                  Schedule Post
-                </button>
               </div>
             </div>
           </div>
@@ -358,7 +288,7 @@ function ContentEditor() {
             <div 
               className={`platform-option ${formData.platforms.includes("linkedin") ? "selected" : ""}`}
               data-platform="linkedin"
-              onClick={() => !isSubmitting && handlePlatformSelection("linkedin")}
+              onClick={() => !isSubmitting && handlePlatformToggle("linkedin")}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#0A66C2">
                 <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
@@ -370,7 +300,7 @@ function ContentEditor() {
             <div 
               className={`platform-option ${formData.platforms.includes("twitter") ? "selected" : ""}`}
               data-platform="twitter"
-              onClick={() => !isSubmitting && handlePlatformSelection("twitter")}
+              onClick={() => !isSubmitting && handlePlatformToggle("twitter")}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#1DA1F2">
                 <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
@@ -380,7 +310,7 @@ function ContentEditor() {
             <div 
               className={`platform-option ${formData.platforms.includes("facebook") ? "selected" : ""}`}
               data-platform="facebook"
-              onClick={() => !isSubmitting && handlePlatformSelection("facebook")}
+              onClick={() => !isSubmitting && handlePlatformToggle("facebook")}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#1877F2">
                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
@@ -390,7 +320,7 @@ function ContentEditor() {
             <div 
               className={`platform-option ${formData.platforms.includes("instagram") ? "selected" : ""}`}
               data-platform="instagram"
-              onClick={() => !isSubmitting && handlePlatformSelection("instagram")}
+              onClick={() => !isSubmitting && handlePlatformToggle("instagram")}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="url(#instagram-gradient)">
                 <defs>
@@ -418,7 +348,7 @@ function ContentEditor() {
             <div className="ai-tools">
               <button 
                 className={`ai-tool-button ${activeAITool === 'tone' ? 'active' : ''}`}
-                onClick={() => activateAITool('tone')}
+                onClick={() => setActiveAITool('tone')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
@@ -427,7 +357,7 @@ function ContentEditor() {
               </button>
               <button 
                 className={`ai-tool-button ${activeAITool === 'hashtags' ? 'active' : ''}`}
-                onClick={() => activateAITool('hashtags')}
+                onClick={() => setActiveAITool('hashtags')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 9h16M4 15h16M10 3v18M14 3v18"></path>
@@ -436,13 +366,47 @@ function ContentEditor() {
               </button>
               <button 
                 className={`ai-tool-button ${activeAITool === 'readability' ? 'active' : ''}`}
-                onClick={() => activateAITool('readability')}
+                onClick={() => setActiveAITool('readability')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                   <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                 </svg>
                 Check Readability
+              </button>
+              <button 
+                className={`ai-tool-button ${activeAITool === 'generate' ? 'active' : ''}`}
+                onClick={async () => {
+                  setIsGenerating(true);
+                  try {
+                    const response = await axios.post('/api/gemini/generate', {
+                      prompt: formData.postContent,
+                      files: [],
+                      history: []
+                    });
+
+                    if (response.data.success) {
+                      setFormData(prev => ({
+                        ...prev,
+                        postContent: response.data.content
+                      }));
+                      setCharacterCount(response.data.content.length);
+                    }
+                  } catch (error) {
+                    console.error('Error generating draft:', error);
+                    setSubmitError('Failed to generate draft. Please try again.');
+                  } finally {
+                    setIsGenerating(false);
+                  }
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-5"></path>
+                  <path d="M15 9H9"></path>
+                  <path d="M15 12H9"></path>
+                  <path d="M15 15H9"></path>
+                </svg>
+                Generate Draft
               </button>
             </div>
           </div>

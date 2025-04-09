@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import './styles.css';
 
 const PostForm = () => {
   // Local state for form data
@@ -14,6 +15,7 @@ const PostForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Character count state
   const [characterCount, setCharacterCount] = useState(0);
@@ -36,23 +38,81 @@ const PostForm = () => {
     }
   };
 
+  // Process inline prompts and generate content
+  const processInlinePrompts = async (text) => {
+    const promptRegex = /##\[(.*?)\]/g;
+    let lastIndex = 0;
+    let finalContent = "";
+    let match;
+
+    while ((match = promptRegex.exec(text)) !== null) {
+      // Add text before the prompt
+      finalContent += text.slice(lastIndex, match.index);
+      
+      // Generate content for the prompt
+      try {
+        const response = await axios.post('/api/gemini/generate', {
+          prompt: match[1],
+          files: [],
+          history: []
+        });
+
+        if (response.data.success) {
+          finalContent += response.data.content;
+        }
+      } catch (error) {
+        console.error('Error processing inline prompt:', error);
+        finalContent += match[0]; // Keep original prompt text if generation fails
+      }
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    finalContent += text.slice(lastIndex);
+    return finalContent;
+  };
+
+  // Generate draft using Gemini
+  const handleGenerateDraft = async () => {
+    setIsGenerating(true);
+    try {
+      const response = await axios.post('/api/gemini/generate', {
+        prompt: formData.postContent,
+        files: [],
+        history: []
+      });
+
+      if (response.data.success) {
+        setFormData(prev => ({
+          ...prev,
+          postContent: response.data.content
+        }));
+        setCharacterCount(response.data.content.length);
+      }
+    } catch (error) {
+      console.error('Error generating draft:', error);
+      setSubmitError('Failed to generate draft. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Handle platform selection
   const handlePlatformSelection = (platform) => {
     setFormData((prevState) => {
       const platforms = [...prevState.platforms];
       
       if (platforms.includes(platform)) {
-        // Remove platform if already selected
         const index = platforms.indexOf(platform);
         platforms.splice(index, 1);
       } else {
-        // Add platform if not selected
         platforms.push(platform);
       }
       
       return {
         ...prevState,
-        platforms
+        platforms,
       };
     });
   };
@@ -62,62 +122,41 @@ const PostForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError(null);
-    setSubmitSuccess(false);
     
     try {
-      // Prepare data to send
-      const dataToSend = {
-        content: formData.postContent,
-        platforms: formData.platforms,
-        scheduledDateTime: formData.postDate && formData.postTime 
-          ? `${formData.postDate}T${formData.postTime}` 
-          : null
+      // Process any inline prompts before submitting
+      const processedContent = await processInlinePrompts(formData.postContent);
+      
+      const dataToSubmit = {
+        ...formData,
+        postContent: processedContent
       };
 
-      console.log("Sending data to Zapier:", dataToSend);
-
-      // Use a proxy server or CORS-anywhere to bypass CORS restrictions
-      // For development purposes, we'll use a direct fetch with mode: 'no-cors'
-      // In production, you should set up a proper backend proxy
+      const response = await axios.post(ZAPIER_ENDPOINT, dataToSubmit);
       
-      // Method 1: Using fetch with no-cors mode (will not return response data)
-      const response = await fetch(ZAPIER_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend),
-        mode: 'no-cors' // This prevents CORS errors but you won't get response data
-      });
-      
-      console.log("Response from Zapier (limited due to no-cors):", response);
-      
-      // Since we're using no-cors, we won't get a proper response
-      // So we'll assume success if no error is thrown
-      setSubmitSuccess(true);
-
-      // Show success toast
-      if (toastRef.current) {
-        toastRef.current.classList.add("show");
-        setTimeout(() => {
-          if (toastRef.current) {
-            toastRef.current.classList.remove("show");
-          }
-        }, 3000);
+      if (response.status === 200) {
+        setSubmitSuccess(true);
+        setFormData({
+          postContent: "",
+          platforms: [],
+          postDate: "",
+          postTime: ""
+        });
+        setCharacterCount(0);
+        
+        // Show success message
+        if (toastRef.current) {
+          toastRef.current.style.display = "block";
+          setTimeout(() => {
+            if (toastRef.current) {
+              toastRef.current.style.display = "none";
+            }
+          }, 3000);
+        }
       }
-
-      // Reset the form
-      setFormData({
-        postContent: "",
-        platforms: [],
-        postDate: "",
-        postTime: ""
-      });
-      setCharacterCount(0);
-      
     } catch (error) {
-      console.error("Error posting to Zapier: ", error);
-      setSubmitError("There was an error posting your content. Please try again.");
+      console.error("Error submitting post:", error);
+      setSubmitError("Failed to submit post. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -136,18 +175,21 @@ const PostForm = () => {
           <textarea
             id="postContent"
             name="postContent"
-            className="form-control"
-            placeholder="What would you like to share today?"
             value={formData.postContent}
             onChange={handleChange}
+            placeholder="Write your post content here... Use ##[PROMPT] for inline Gemini prompts"
             required
-            disabled={isSubmitting}
-          ></textarea>
-          <div className="character-count">
-            <span className={characterCount > 280 ? "text-danger" : ""}>
-              {characterCount}
-            </span>{" "}
-            / 280 characters
+          />
+          <div className="character-count">{characterCount} characters</div>
+          <div className="button-group">
+            <button
+              type="button"
+              onClick={handleGenerateDraft}
+              disabled={isGenerating}
+              className="generate-button"
+            >
+              {isGenerating ? "Generating..." : "Generate Draft"}
+            </button>
           </div>
         </div>
 

@@ -383,62 +383,144 @@ textarea.form-control {
 
 /* Drafts Tab Styles */
 .drafts-container {
+    max-width: 800px;
+    margin: 0 auto;
     padding: 20px;
 }
 
-.drafts-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.draft-item {
-    background-color: #f9f9f9;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    transition: box-shadow 0.3s ease;
-}
-
-.draft-item:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.draft-link {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    text-decoration: none;
-    color: inherit;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.draft-info {
-    flex-grow: 1;
-    margin-right: 15px;
-}
-
-.draft-title {
-    margin: 0 0 5px 0;
-    font-size: 1.1em;
+.drafts-container h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
     color: #333;
 }
 
-.draft-snippet {
-    margin: 0;
-    font-size: 0.9em;
-    color: #666;
+.drafts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.draft-item {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    transition: box-shadow 0.2s;
+}
+
+.draft-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.draft-content {
+    flex: 1;
+}
+
+.draft-text {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .draft-meta {
-    font-size: 0.8em;
-    color: #888;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #666;
+    font-size: 14px;
 }
 
-/* Modern Draft Editor Styles */
+.draft-date {
+    color: #666;
+}
+
+.draft-platforms {
+    display: flex;
+    gap: 8px;
+}
+
+.platform-tag {
+    background: #f1f1f1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #444;
+}
+
+.draft-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-button,
+.delete-button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.edit-button {
+    background: #0077b5;
+    color: white;
+    border: none;
+}
+
+.edit-button:hover {
+    background: #005582;
+}
+
+.delete-button {
+    background: white;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.delete-button:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.drafts-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.drafts-empty-state h2 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.drafts-empty-state p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.create-draft-button {
+    background: #0077b5;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.create-draft-button:hover {
+    background: #005582;
+}
+
 .modern-editor-container {
     display: flex;
     flex-direction: column;
@@ -802,17 +884,11 @@ textarea.form-control {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #4caf50;
+  background-color: #4CAF50;
   color: white;
-  padding: 16px 24px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(100px);
-  opacity: 0;
-  transition: all 0.3s ease;
+  padding: 15px 25px;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   z-index: 1000;
 }
 
@@ -892,4 +968,226 @@ textarea.form-control {
 
 .text-danger {
   color: #c62828;
+}
+
+.post-form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.post-form .form-group {
+  margin-bottom: 20px;
+}
+
+.post-form .textarea-container {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.post-form textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.post-form .character-count {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.post-form .button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.post-form .generate-button {
+  background-color: #0077b5;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.post-form .generate-button:hover {
+  background-color: #005582;
+}
+
+.post-form .generate-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.post-form .platform-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.post-form .platform-buttons button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.post-form .platform-buttons button.active {
+  background-color: #0077b5;
+  color: white;
+  border-color: #0077b5;
+}
+
+.content-editor {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.content-editor .form-group {
+  margin-bottom: 20px;
+}
+
+.content-editor .textarea-container {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.content-editor textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.content-editor .character-count {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.content-editor .button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.content-editor .generate-button {
+  background-color: #0077b5;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.content-editor .generate-button:hover {
+  background-color: #005582;
+}
+
+.content-editor .generate-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.content-editor .platform-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.content-editor .platform-buttons button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.content-editor .platform-buttons button.active {
+  background-color: #0077b5;
+  color: white;
+  border-color: #0077b5;
+}
+
+.content-editor .toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.content-editor .error-message {
+  color: #dc3545;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* AI Tools Section */
+.ai-tools {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.ai-tool-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ai-tool-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-tool-button:hover {
+  background: #f1f1f1;
+}
+
+.ai-tool-button.active {
+  background: #0077b5;
+  color: white;
+  border-color: #0077b5;
+}
+
+.ai-tool-button svg {
+  width: 16px;
+  height: 16px;
 }

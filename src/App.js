@@ -5,6 +5,7 @@ import DraftsTab from "./DraftsTab";
 import MyPostsTab from "./MyPostsTab";
 import TabNavigation from "./TabNavigation";
 import DraftEditor from './DraftEditor'; 
+import GeminiDraftEditor from './GeminiDraftEditor'; 
 import "./styles.css";
 
 // Helper component to handle query parameters
@@ -16,7 +17,7 @@ function MainContent() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const tabParam = searchParams.get('tab');
-    if (tabParam && ['create', 'drafts', 'posts'].includes(tabParam)) {
+    if (tabParam && ['create', 'drafts', 'posts', 'gemini'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, [location.search]);
@@ -27,6 +28,8 @@ function MainContent() {
         return <DraftsTab />;
       case 'posts':
         return <MyPostsTab />;
+      case 'gemini':
+        return <GeminiDraftEditor />;
       case 'create':
       default:
         return <ContentEditor />; 
@@ -104,7 +107,9 @@ function App() {
           {/* Tab Navigation */}
           <Routes> 
             <Route path="/" element={<MainContent />} />
-            <Route path="/edit-draft/:draftId" element={<ContentEditor />} /> 
+            <Route path="/edit/:draftId" element={<ContentEditor />} />
+            <Route path="/edit-draft/:draftId" element={<ContentEditor />} />
+            <Route path="/gemini" element={<GeminiDraftEditor />} /> 
           </Routes>
         </div>
         

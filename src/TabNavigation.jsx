@@ -13,7 +13,8 @@ const TabNavigation = ({ activeTab, setActiveTab }) => {
   const tabs = [
     { id: "create", label: "Create Post" },
     { id: "drafts", label: "Drafts" },
-    { id: "posts", label: "My Posts" }
+    { id: "posts", label: "My Posts" },
+    { id: "gemini", label: "Gemini Editor" }
   ];
 
   return (

@@ -1,98 +1,118 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './styles.css';
 
-const DraftsTab = () => {
+function DraftsTab() {
   const [drafts, setDrafts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Mock data for drafts - in a real app, this would come from a database
+  // Load drafts when component mounts
   useEffect(() => {
-    // Simulate API call to get drafts
-    setTimeout(() => {
-      const mockDrafts = [
-        {
-          id: "draft-1",
-          title: "Product Launch Announcement",
-          content: "Excited to announce our new product launch next week...",
-          platform: "linkedin",
-          lastEdited: "2025-04-07T14:30:00Z"
-        },
-        {
-          id: "draft-2",
-          title: "Industry Insights",
-          content: "The latest trends in our industry show that...",
-          platform: "linkedin",
-          lastEdited: "2025-04-06T09:15:00Z"
-        },
-        {
-          id: "draft-3",
-          title: "Team Spotlight",
-          content: "Meet our amazing team members who make everything possible...",
-          platform: "linkedin",
-          lastEdited: "2025-04-05T16:45:00Z"
-        }
-      ];
-      setDrafts(mockDrafts);
-      setLoading(false);
-    }, 1000);
+    loadDrafts();
   }, []);
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+  // Load all drafts
+  const loadDrafts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get('/api/drafts');
+      if (response.data.success) {
+        setDrafts(response.data.drafts);
+      }
+    } catch (error) {
+      console.error('Error loading drafts:', error);
+      setError('Failed to load drafts');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  if (loading) {
-    return <div className="loading-indicator">Loading drafts...</div>;
+  // Delete a draft
+  const handleDeleteDraft = async (draftId) => {
+    if (!window.confirm('Are you sure you want to delete this draft?')) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(`/api/drafts/${draftId}`);
+      if (response.data.success) {
+        // Remove draft from state
+        setDrafts(drafts.filter(draft => draft.id !== draftId));
+      }
+    } catch (error) {
+      console.error('Error deleting draft:', error);
+      setError('Failed to delete draft');
+    }
+  };
+
+  // Edit a draft
+  const handleEditDraft = (draftId) => {
+    navigate(`/edit/${draftId}`);
+  };
+
+  if (isLoading) {
+    return <div>Loading drafts...</div>;
   }
 
   if (error) {
-    return <div className="error-message">Error loading drafts: {error}</div>;
+    return <div className="error-message">{error}</div>;
+  }
+
+  if (drafts.length === 0) {
+    return (
+      <div className="drafts-empty-state">
+        <h2>No drafts yet</h2>
+        <p>Your saved drafts will appear here.</p>
+        <button onClick={() => navigate('/')} className="create-draft-button">
+          Create New Draft
+        </button>
+      </div>
+    );
   }
 
   return (
     <div className="drafts-container">
-      <h2 className="section-title">Saved Drafts</h2>
-      
-      {drafts.length === 0 ? (
-        <div className="empty-state">
-          <p>You don't have any saved drafts yet.</p>
-          <button className="btn btn-small">Create New Post</button>
-        </div>
-      ) : (
-        <div className="drafts-list">
-          {drafts.map(draft => (
-            <Link to={`/edit-draft/${draft.id}`} key={draft.id} className="draft-link">
-              <div className="draft-item">
-                <div className="draft-header">
-                  <h3 className="draft-title">{draft.title}</h3>
-                  <div className="draft-platform">
-                    {draft.platform === "linkedin" && (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#0A66C2">
-                        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                        <rect x="2" y="9" width="4" height="12"></rect>
-                        <circle cx="4" cy="4" r="2"></circle>
-                      </svg>
-                    )}
-                  </div>
-                </div>
-                <div className="draft-content">{draft.content.substring(0, 100)}...</div>
-                <div className="draft-footer">
-                  <span className="draft-date">Last edited: {formatDate(draft.lastEdited)}</span>
-                  <div className="draft-actions">
-                    <button className="btn btn-small">Edit</button>
-                    <button className="btn btn-small btn-outline">Delete</button>
-                  </div>
+      <h2>My Drafts</h2>
+      <div className="drafts-list">
+        {drafts.map(draft => (
+          <div key={draft.id} className="draft-item">
+            <div className="draft-content">
+              <div className="draft-text">{draft.content}</div>
+              <div className="draft-meta">
+                <span className="draft-date">
+                  {new Date(draft.createdAt).toLocaleDateString()}
+                </span>
+                <div className="draft-platforms">
+                  {draft.platforms.map(platform => (
+                    <span key={platform} className="platform-tag">
+                      {platform}
+                    </span>
+                  ))}
                 </div>
               </div>
-            </Link>
-          ))}
-        </div>
-      )}
+            </div>
+            <div className="draft-actions">
+              <button
+                onClick={() => handleEditDraft(draft.id)}
+                className="edit-button"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDeleteDraft(draft.id)}
+                className="delete-button"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
-};
+}
 
 export default DraftsTab;
