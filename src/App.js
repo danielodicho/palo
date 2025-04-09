@@ -7,6 +7,7 @@ import TabNavigation from "./TabNavigation";
 import DraftEditor from './DraftEditor'; 
 import SeoOptimizerTab from "./SeoOptimizerTab";
 import "./styles.css";
+import SchedulerTab from "./SchedulerTab";
 
 // Helper component to handle query parameters
 function MainContent({ activeSidebarItem, setActiveSidebarItem }) {
@@ -29,7 +30,7 @@ function MainContent({ activeSidebarItem, setActiveSidebarItem }) {
         case "seo":
           return <SeoOptimizerTab />;
         case "scheduler":
-          return <div className="placeholder-content">Scheduler functionality coming soon</div>;
+          return <SchedulerTab />;
         case "analytics":
           return <div className="placeholder-content">Analytics functionality coming soon</div>;
         case "settings":
