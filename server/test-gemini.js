@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 // Set API key directly for testing
-process.env.GEMINI_API_KEY = 'AIzaSyAn0qfigDqibp8hWFW2_UHkL1TNoBeNxZ8';
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
