@@ -222,7 +222,7 @@ HTML: ${processedHtml.substring(0, 50000)}`
             messages: [
               { 
                 role: 'system', 
-                content: 'You are an SEO expert. Respond ONLY with a valid JSON array containing 3 specific SEO suggestions.'
+                content: 'You are an SEO expert. Respond ONLY with a valid JSON array containing all relevant SEO suggestions. Do not limit yourself to any specific number - include as many as are needed. Your goal is to provide a comprehensive list of SEO improvements.'
               },
               { 
                 role: 'user', 
@@ -290,9 +290,19 @@ HTML: ${processedHtml.substring(0, 50000)}`
       if (missingAltCount > 0) {
         suggestions.push({
           "title": "Add Alt Text to Images",
-          "reason": "${missingAltCount} images are missing alt text. Alt text improves accessibility and helps search engines understand image content.",
+          "reason": `${missingAltCount} images are missing alt text. Alt text improves accessibility and helps search engines understand image content.`,
           "code": `alt="Descriptive text about the image content"`,
           "location": "Add to all img tags that are missing alt attributes"
+        });
+      }
+      
+      // Check for canonical URL
+      if (!$('link[rel="canonical"]').length) {
+        suggestions.push({
+          "title": "Add Canonical URL",
+          "reason": "Canonical URLs prevent duplicate content issues by specifying the preferred version of a page.",
+          "code": `<link rel="canonical" href="${$('meta[property="og:url"]').attr('content') || ''}" />`,
+          "location": "Inside the <head> tag"
         });
       }
       
@@ -301,7 +311,37 @@ HTML: ${processedHtml.substring(0, 50000)}`
         suggestions.push({
           "title": "Add Structured Data",
           "reason": "Structured data helps search engines understand your content better and can result in rich snippets in search results.",
-          "code": `<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "WebPage",\n  "name": "${$('title').text() || 'Page Title'}",\n  "description": "${$('meta[name="description"]').attr('content') || 'Page description'}"\n}\n</script>`,
+          "code": `<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "${$('title').text() || 'Page Title'}",
+  "description": "${$('meta[name="description"]').attr('content') || 'Page description'}"
+}
+</script>`,
+          "location": "Inside the <head> tag"
+        });
+      }
+      
+      // Check for mobile viewport
+      if (!$('meta[name="viewport"]').length) {
+        suggestions.push({
+          "title": "Add Mobile Viewport Meta Tag",
+          "reason": "The viewport meta tag ensures proper rendering on mobile devices and is essential for mobile SEO.",
+          "code": `<meta name="viewport" content="width=device-width, initial-scale=1">`,
+          "location": "Inside the <head> tag"
+        });
+      }
+      
+      // Check for Open Graph tags
+      if (!$('meta[property="og:title"]').length) {
+        suggestions.push({
+          "title": "Add Open Graph Meta Tags",
+          "reason": "Open Graph meta tags improve how your content appears when shared on social media platforms.",
+          "code": `<meta property="og:title" content="${$('title').text() || 'Page Title'}">
+<meta property="og:description" content="${$('meta[name="description"]').attr('content') || 'Page description'}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${$('link[rel="canonical"]').attr('href') || ''}">`,
           "location": "Inside the <head> tag"
         });
       }
