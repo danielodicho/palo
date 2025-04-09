@@ -2,13 +2,34 @@ import React, { useState } from "react";
 import PostForm from "./PostForm";
 import DraftsTab from "./DraftsTab";
 import MyPostsTab from "./MyPostsTab";
+import SeoOptimizerTab from "./SeoOptimizerTab";
 import TabNavigation from "./TabNavigation";
 import "./styles.css";
 
 function App() {
   const [activeTab, setActiveTab] = useState("create");
+  const [activeSidebarItem, setActiveSidebarItem] = useState("content");
 
   const renderTabContent = () => {
+    // If a sidebar item is active, show that content instead of tab content
+    if (activeSidebarItem !== "content") {
+      switch (activeSidebarItem) {
+        case "seo":
+          return <SeoOptimizerTab />;
+        case "scheduler":
+          return <div className="placeholder-content">Scheduler functionality coming soon</div>;
+        case "analytics":
+          return <div className="placeholder-content">Analytics functionality coming soon</div>;
+        case "settings":
+          return <div className="placeholder-content">Settings functionality coming soon</div>;
+        default:
+          // Default back to content tab if unknown sidebar item
+          setActiveSidebarItem("content");
+          return null;
+      }
+    }
+    
+    // Otherwise show the regular tab content
     switch (activeTab) {
       case "create":
         return <PostForm />;
@@ -26,7 +47,12 @@ function App() {
       {/* Sidebar */}
       <div className="sidebar">
         <div className="logo">GeoWriter</div>
-        <div className="nav-item active">
+        <div 
+          className={`nav-item ${activeSidebarItem === "content" ? "active" : ""}`}
+          onClick={() => {
+            setActiveSidebarItem("content");
+          }}
+        >
           <div className="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -35,7 +61,27 @@ function App() {
           </div>
           Content Generator
         </div>
-        <div className="nav-item">
+        <div 
+          className={`nav-item ${activeSidebarItem === "seo" ? "active" : ""}`}
+          onClick={() => {
+            setActiveSidebarItem("seo");
+          }}
+        >
+          <div className="nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+          </div>
+          SEO/GEO Optimizer
+        </div>
+        <div 
+          className={`nav-item ${activeSidebarItem === "scheduler" ? "active" : ""}`}
+          onClick={() => {
+            setActiveSidebarItem("scheduler");
+          }}
+        >
           <div className="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -46,7 +92,12 @@ function App() {
           </div>
           Scheduler
         </div>
-        <div className="nav-item">
+        <div 
+          className={`nav-item ${activeSidebarItem === "analytics" ? "active" : ""}`}
+          onClick={() => {
+            setActiveSidebarItem("analytics");
+          }}
+        >
           <div className="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
@@ -54,7 +105,12 @@ function App() {
           </div>
           Analytics
         </div>
-        <div className="nav-item">
+        <div 
+          className={`nav-item ${activeSidebarItem === "settings" ? "active" : ""}`}
+          onClick={() => {
+            setActiveSidebarItem("settings");
+          }}
+        >
           <div className="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
@@ -70,13 +126,27 @@ function App() {
         <div className="breadcrumb">
           <span>GeoWriter</span>
           <span className="breadcrumb-separator">/</span>
-          <span>Publisher</span>
+          <span>
+            {activeSidebarItem === "seo" ? "SEO/GEO Optimizer" :
+             activeSidebarItem === "scheduler" ? "Scheduler" :
+             activeSidebarItem === "analytics" ? "Analytics" :
+             activeSidebarItem === "settings" ? "Settings" :
+             "Publisher"}
+          </span>
         </div>
 
-        <h1 className="page-title">Publish to Social Media</h1>
+        <h1 className="page-title">
+          {activeSidebarItem === "seo" ? "Optimize your website's SEO/GEO" :
+           activeSidebarItem === "scheduler" ? "Schedule Your Content" :
+           activeSidebarItem === "analytics" ? "Content Analytics" :
+           activeSidebarItem === "settings" ? "Application Settings" :
+           "Publish to Social Media"}
+        </h1>
 
-        {/* Tab Navigation */}
-        <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+        {/* Only show tab navigation when Content Generator is active */}
+        {activeSidebarItem === "content" && (
+          <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+        )}
 
         {/* Tab Content */}
         {renderTabContent()}

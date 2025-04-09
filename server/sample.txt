@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Axolotl Plush - The Best Plushies Online</title>
+  <meta name="description" content="Shop for cute and cuddly axolotl plushies. Perfect gifts for all ages.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Axolotl Plush Store</h1>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <main>
+    <section class="hero">
+      <h2>17-Inch Axie the Axolotl</h2>
+      <img src="axolotl.jpg" alt="Pink Axolotl Plush">
+      <p>The cutest and softest axolotl plush you'll ever find!</p>
+      <button>Add to Cart - $29.99</button>
+    </section>
+    
+    <section class="product-details">
+      <h3>Product Details</h3>
+      <ul>
+        <li>Super soft plush material</li>
+        <li>17 inches tall</li>
+        <li>Suitable for all ages</li>
+        <li>Machine washable</li>
+      </ul>
+      <p>This adorable axolotl plush is perfect for axolotl lovers of all ages. Made with premium materials, Axie is super soft and huggable. The vibrant pink color and cute smile will brighten anyone's day!</p>
+    </section>
+    
+    <section class="related-products">
+      <h3>You May Also Like</h3>
+      <div class="product-grid">
+        <div class="product">
+          <img src="blue-axolotl.jpg" alt="Blue Axolotl Plush">
+          <h4>Blue Axolotl Plush</h4>
+          <p>$24.99</p>
+        </div>
+        <div class="product">
+          <img src="mini-axolotl.jpg" alt="Mini Axolotl Plush">
+          <h4>Mini Axolotl Plush</h4>
+          <p>$14.99</p>
+        </div>
+        <div class="product">
+          <img src="axolotl-keychain.jpg" alt="Axolotl Keychain">
+          <h4>Axolotl Keychain</h4>
+          <p>$9.99</p>
+        </div>
+      </div>
+    </section>
+    
+    <section class="reviews">
+      <h3>Customer Reviews</h3>
+      <div class="review">
+        <h4>Sarah T.</h4>
+        <div class="stars">★★★★★</div>
+        <p>My daughter loves her new axolotl plush! The quality is amazing and it's so soft!</p>
+      </div>
+      <div class="review">
+        <h4>Michael R.</h4>
+        <div class="stars">★★★★☆</div>
+        <p>Great plush, just a bit smaller than I expected. Still very cute though!</p>
+      </div>
+    </section>
+  </main>
+  
+  <footer>
+    <div class="footer-links">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="/products">All Products</a></li>
+        <li><a href="/new">New Arrivals</a></li>
+        <li><a href="/sale">Sale Items</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Information</h4>
+      <ul>
+        <li><a href="/about">About Us</a></li>
+        <li><a href="/shipping">Shipping Policy</a></li>
+        <li><a href="/returns">Returns & Refunds</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Contact Us</h4>
+      <p>Email: info@axolotlplush.com</p>
+      <p>Phone: (555) 123-4567</p>
+      <div class="social-icons">
+        <a href="#"><img src="facebook.png" alt="Facebook"></a>
+        <a href="#"><img src="instagram.png" alt="Instagram"></a>
+        <a href="#"><img src="twitter.png" alt="Twitter"></a>
+      </div>
+    </div>
+    <p class="copyright">© 2025 Axolotl Plush. All rights reserved.</p>
+  </footer>
+</body>
+</html>

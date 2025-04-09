@@ -1,0 +1,17 @@
+{
+  "name": "palo-proxy-server",
+  "version": "1.0.0",
+  "description": "Proxy server for fetching website content",
+  "main": "proxy.js",
+  "scripts": {
+    "start": "node proxy.js"
+  },
+  "dependencies": {
+    "axios": "^1.8.4",
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "form-data": "^4.0.2"
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Add JSON-LD Schema Markup",
+    "reason": "Schema markup can improve SEO by helping search engines understand content more effectively, which can improve search visibility.",
+    "code": "<script type='application/ld+json'> { '@context': 'https://schema.org', '@type': 'Product', 'name': '17-Inch Axie the Axolotl', 'description': 'Super soft plush material 17 inches tall Suitable for all ages Machine washable', 'image': 'axolotl.jpg', 'offers': { '@type': 'Offer', 'priceCurrency': 'USD', 'price': '29.99' } } </script>",
+    "location": "Inside <head>"
+  },
+  {
+    "title": "Add Lang Attribute",
+    "reason": "The lang attribute helps search engines understand the language of the page content, which can improve search visibility and accessibility.",
+    "code": "lang='en'",
+    "location": "html opening tag"
+  },
+  {
+    "title": "Add Alt Text for Related Products",
+    "reason": "Alt text improves accessibility for visually impaired users and boosts SEO by providing more context to search engines.",
+    "code": "alt='Blue Axolotl Plush for $24.99', alt='Mini Axolotl Plush for $14.99', alt='Axolotl Keychain for $9.99'",
+    "location": "Replace existing alt attributes in related-products section"
+  },
+  {
+    "title": "Structured Review Markup",
+    "reason": "Structured data for reviews can significantly improve product's visibility in search results.",
+    "code": "<script type='application/ld+json'> { '@context': 'https://schema.org/', '@type': 'Review', 'reviewRating': { '@type': 'Rating', 'ratingValue': '5', 'bestRating': '5' }, 'author': { '@type': 'Person', 'name': 'Sarah T.' } } </script>",
+    "location": "Inside <head>"
+  }
+]
